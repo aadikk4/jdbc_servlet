@@ -8,3 +8,9 @@
 /dataSources.local.xml
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
+/.idea
+/srs/main/java/mapper
+/srs/main/java/model/dto
+/srs/test/StudentDaoImplTest
+
+
