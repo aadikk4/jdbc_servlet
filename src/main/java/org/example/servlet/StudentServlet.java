@@ -2,8 +2,11 @@ package org.example.servlet;
 
 
 import org.example.model.Course;
-import org.example.model.Student;
+import org.example.model.dto.CourseDTO;
+import org.example.model.dto.StudentDTO;
+import org.example.service.CourseService;
 import org.example.service.StudentService;
+import org.example.service.impl.CourseServiceImpl;
 import org.example.service.impl.StudentServiceImpl;
 
 import javax.servlet.ServletException;
@@ -16,14 +19,18 @@ import java.util.List;
 
 public class StudentServlet extends HttpServlet {
     private final StudentService studentService;
+    private final CourseService courseService;
 
 
-    public StudentServlet(StudentService studentService) {
+    public StudentServlet(StudentService studentService, CourseService courseService) {
         this.studentService = studentService;
+        this.courseService = courseService;
     }
 
     public StudentServlet() {
+
         studentService = new StudentServiceImpl();
+        courseService = new CourseServiceImpl();
     }
 
     @Override
@@ -58,7 +65,7 @@ public class StudentServlet extends HttpServlet {
         Long dormitoryId = Long.valueOf(req.getParameter("dormitoryId"));
         String[] courses = req.getParameterValues("courseNames[]");
 
-        Student student = new Student();
+        StudentDTO student = new StudentDTO();
         student.setName(name);
         student.setDormitoryId(dormitoryId);
         student.setCourses(new ArrayList<>());
@@ -66,31 +73,30 @@ public class StudentServlet extends HttpServlet {
 
         if (courses != null && courses.length > 0) {
             for (String courseName : courses) {
-                Course course = getCourseByName(courseName);
+                CourseDTO course = getCourseByName(courseName);
                 student.getCourses().add(course);
             }
         }
         studentService.addStudent(student);
 
-        List<Student> students = studentService.getAllStudents();
+        List<StudentDTO> students = studentService.getAllStudents();
         req.setAttribute("students", students);
         req.getRequestDispatcher("students.jsp").forward(req, resp);
     }
 
-    private Course getCourseByName(String courseName) {
-        Course course = new Course();
-        switch (courseName) {
-            case "Mathematics":
-                course.setId(1);
-                break;
-            case "Physics":
-                course.setId(2);
-                break;
-            case "Chemistry":
-                course.setId(3);
-                break;
+    private CourseDTO getCourseByName(String courseName) {
+        CourseDTO course = courseService.getCourseByName(courseName);
+
+//        switch (courseName) {
+//            case "Mathematics" -> course.setId(1);
+//            case "Physics" -> course.setId(2);
+//            case "Chemistry" -> course.setId(3);
+//        }
+//        course.setName(courseName);
+        if (course != null) {
+            course.setId(course.getId());
+            course.setName(course.getName());
         }
-        course.setName(courseName);
         return course;
     }
 

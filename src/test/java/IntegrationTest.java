@@ -1,7 +1,5 @@
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -15,10 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.example.util.DbUtil.getConnection;
 
 @Testcontainers
-public class StudentIntegrationTest {
+class IntegrationTest {
 
     @Container
     private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:13").withDatabaseName("test").withUsername("test").withPassword("test");
@@ -59,9 +56,8 @@ public class StudentIntegrationTest {
     }
 
 
-
     @Test
-    public void testGetAllStudents() {
+    void testGetAllStudents() {
         int expectedStudentCount = 3;
         try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT * FROM student")) {
 
@@ -80,7 +76,7 @@ public class StudentIntegrationTest {
     }
 
     @Test
-    public void testAddStudent() {
+    void testAddStudent() {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO student (name, dormitory_id) VALUES (?, ?)")) {
 
             // Задаем параметры для добавления нового студента
@@ -99,7 +95,7 @@ public class StudentIntegrationTest {
     }
 
     @Test
-    public void testDeleteStudentById() {
+    void testDeleteStudentById() {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM student WHERE id = ?")) {
             preparedStatement.execute("DELETE FROM student_course WHERE student_id = ?");
             long studentIdToDelete = 1L;
@@ -121,8 +117,56 @@ public class StudentIntegrationTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void testGetAllCourses() {
+        int expectedCourseCount = 3;
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT * FROM course")) {
+            int count = 0;
+            while (resultSet.next()) {
+                count++;
+            }
+
+            Assertions.assertEquals(expectedCourseCount, count);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void testAddCourse() {
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO course (name) VALUES (?)")) {
+
+            preparedStatement.setString(1, "History");
+            int rowsAffected = preparedStatement.executeUpdate();
+            Assertions.assertTrue(rowsAffected > 0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void testDeleteCourseById() {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM course WHERE id = ?")) {
+            preparedStatement.execute("DELETE FROM student_course WHERE course_id = ?");
+            long courseIdToDelete = 1L;
+
+            preparedStatement.setLong(1, courseIdToDelete);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            Assertions.assertTrue(rowsAffected > 0);
+            try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT * FROM course WHERE id = " + courseIdToDelete)) {
+                Assertions.assertFalse(resultSet.next());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @AfterEach
-    public  void cleanup() throws SQLException {
+    public void cleanup() throws SQLException {
         // Удаление таблиц
         try (Statement statement = connection.createStatement()) {
 

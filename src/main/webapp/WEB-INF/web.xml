@@ -123,6 +123,15 @@
     <servlet-name>StudentServlet</servlet-name>
     <url-pattern>/students</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>CourseServlet</servlet-name>
+    <servlet-class>org.example.servlet.CourseServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>CourseServlet</servlet-name>
+    <url-pattern>/courses</url-pattern>
+  </servlet-mapping>
 
 </web-app>
         

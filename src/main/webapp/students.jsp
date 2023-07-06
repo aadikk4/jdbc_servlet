@@ -1,6 +1,8 @@
 <%@ page import="org.example.model.Student" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.example.model.Course" %>
+<%@ page import="org.example.model.dto.StudentDTO" %>
+<%@ page import="org.example.model.dto.CourseDTO" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -21,17 +23,17 @@
     </tr>
     </thead>
     <tbody>
-    <% List<Student> students = (List<Student>) request.getAttribute("students");
+    <% List<StudentDTO> students = (List<StudentDTO>) request.getAttribute("students");
         if (students != null && !students.isEmpty()) {
-            for (Student student : students) { %>
+            for (StudentDTO student : students) { %>
     <tr>
         <td><%= student.getId() %></td>
         <td><%= student.getName() %></td>
         <td><%= student.getDormitoryId() %></td>
         <td>
-            <% List<Course> courses = student.getCourses();
+            <% List<CourseDTO> courses = student.getCourses();
                 if (courses != null && !courses.isEmpty()) {
-                    for (Course course : courses) { %>
+                    for (CourseDTO course : courses) { %>
             <%= course.getName() %><br>
             <% }
             } else { %>
